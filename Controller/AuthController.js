@@ -56,7 +56,7 @@ const signUp = async (req, res, next) => {
       // sending mail for otp
       await SendEmail(
         data.email,
-        'Please Verify your email address',
+        'Please verify your email address',
         Message.OTPMessage(data.name, otp)
       );
     } catch (err) {
@@ -123,7 +123,7 @@ const verifyEmail = async (req, res, next) => {
 
     const response = {
       status: 'success',
-      message: 'user verified succesfully please login ',
+      message: 'user verified successfully please login ',
     };
 
     res.status(200).json(response);

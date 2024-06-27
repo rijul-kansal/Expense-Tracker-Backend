@@ -29,6 +29,9 @@ const schema = new mongoose.Schema({
     type: String,
     required: [true, 'please attach user id also'],
   },
+  category: {
+    type: String,
+  },
 });
 
 const moneytrans = mongoose.model('Money-Transaction', schema);

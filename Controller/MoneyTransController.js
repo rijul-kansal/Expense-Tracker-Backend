@@ -35,13 +35,14 @@ const addTrans = async (req, res, next) => {
         )
       );
     }
-    const { amount, description, moneyType } = req.body;
+    const { amount, description, moneyType, category } = req.body;
     const data = await MoneyTrans.create({
       amount,
       description,
       moneyType,
       bookId,
       addedBy: email,
+      category,
     });
     const response = {
       status: 'success',
@@ -246,12 +247,12 @@ const updateTrans = async (req, res, next) => {
     const trans = req.params.id;
 
     const transRec = await MoneyTrans.findById(trans);
-    const { amount, description } = req.body;
+    const { amount, description, category } = req.body;
 
-    if (!amount && !description) {
+    if (!amount && !description && !category) {
       return next(
         new AppError(
-          'Either add amount or description in order to update entry ',
+          'Either add amount or description or category in order to update entry',
           403
         )
       );
@@ -271,7 +272,7 @@ const updateTrans = async (req, res, next) => {
 
     const transs = await MoneyTrans.findByIdAndUpdate(
       trans,
-      { amount, description },
+      { amount, description, category },
       {
         new: true,
         runValidators: true,
