@@ -1,5 +1,6 @@
 const AppError = require('../utils/AppError');
 const User = require('./../Schema/UsersSchema');
+
 const errorMessage = (err, statusCode, res, next) => {
   if (process.env.DEV_ENV === 'Development') {
     const response = {

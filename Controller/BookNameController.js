@@ -146,44 +146,15 @@ const deleteBook = async (req, res, next) => {
 const getBookOfParticularUser = async (req, res, next) => {
   try {
     const userIdd = req.user.email;
-    const data = await BookName.aggregate([
-      {
-        $unwind: '$userId',
-      },
-      {
-        $match: { userId: userIdd },
-      },
-      {
-        $group: {
-          _id: null,
-          bookName: { $push: '$name' },
-          bookId: { $push: '$_id' },
-          updatedLast: { $push: '$updatedLast' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-        },
-      },
-    ]);
-    if (data.length === 0) {
+    const d = await BookName.find({ userId: { $in: [userIdd] } });
+    console.log(d);
+    if (d.length === 0) {
       return next(new AppError('a user has not created any book', 401));
     }
-    let actualData = [];
-    for (let i = 0; i < data[0].bookName.length; i++) {
-      const entry = {
-        bookName: data[0].bookName[i],
-        bookId: data[0].bookId[i],
-        updatedLast: data[0].updatedLast[i],
-      };
-      actualData.push(entry);
-    }
-
     const response = {
       status: 'success',
       data: {
-        data: actualData,
+        data: d,
       },
     };
     res.status(200).json(response);
