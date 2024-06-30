@@ -1,4 +1,6 @@
 const ExcelJS = require('exceljs');
+const sharp = require('sharp');
+
 function adjustToIST(date) {
   let istOffset = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
   return new Date(date.getTime() + istOffset);
@@ -148,7 +150,17 @@ function generateXLS(data) {
     console.log(err);
   }
 }
+
+const resizeUserPhoto = async (buffer) => {
+  const buf = await sharp(buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toBuffer();
+  return buf;
+};
 module.exports = {
   convertInAmPm,
   generateXLS,
+  resizeUserPhoto,
 };

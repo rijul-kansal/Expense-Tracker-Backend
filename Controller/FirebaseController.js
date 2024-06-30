@@ -6,6 +6,7 @@ const {
   uploadBytesResumable,
 } = require('firebase/storage');
 const multer = require('multer');
+const AppError = require('../utils/AppError');
 const firebase = {
   apiKey: process.env.API_KEY,
   authDomain: process.env.FB_AUTH_DOMAIN,
@@ -18,31 +19,52 @@ const firebase = {
 initializeApp(firebase);
 const storage = getStorage();
 const upload = multer({ storage: multer.memoryStorage() });
-const uploadImage = async (req, res) => {
+// const uploadImage = async (req, res, next) => {
+//   try {
+//     const dateTime = giveCurrentDateTime();
+//     const storageRef = ref(
+//       storage,
+//       `files/${req.file.originalname + '       ' + dateTime}`
+//     );
+//     const metadata = {
+//       contentType: req.file.mimetype,
+//     };
+//     const snapshot = await uploadBytesResumable(
+//       storageRef,
+//       req.file.buffer,
+//       metadata
+//     );
+//     const downloadURL = await getDownloadURL(snapshot.ref);
+//     console.log('File successfully uploaded.');
+//     return res.send({
+//       message: 'file uploaded to firebase storage',
+//       name: req.file.originalname,
+//       type: req.file.mimetype,
+//       downloadURL: downloadURL,
+//     });
+//   } catch (error) {
+//     return res.status(400).send(error.message);
+//   }
+// };
+
+const uploadImageTofirebase = async (file, next) => {
   try {
     const dateTime = giveCurrentDateTime();
     const storageRef = ref(
       storage,
-      `files/${req.file.originalname + '       ' + dateTime}`
+      `files/${file.originalname + '       ' + dateTime}`
     );
     const metadata = {
-      contentType: req.file.mimetype,
+      contentType: file.mimetype,
     };
     const snapshot = await uploadBytesResumable(
       storageRef,
-      req.file.buffer,
+      file.buffer,
       metadata
     );
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    console.log('File successfully uploaded.');
-    return res.send({
-      message: 'file uploaded to firebase storage',
-      name: req.file.originalname,
-      type: req.file.mimetype,
-      downloadURL: downloadURL,
-    });
+    return await getDownloadURL(snapshot.ref);
   } catch (error) {
-    return res.status(400).send(error.message);
+    return next(new AppError(error.message, 400));
   }
 };
 
@@ -58,5 +80,5 @@ const giveCurrentDateTime = () => {
 
 module.exports = {
   upload,
-  uploadImage,
+  uploadImageTofirebase,
 };

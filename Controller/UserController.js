@@ -1,6 +1,7 @@
 const AppError = require('../utils/AppError');
+const GeneralFn = require('./../utils/Generalfn');
 const User = require('./../Schema/UsersSchema');
-
+const FireBaseController = require('./FirebaseController');
 const errorMessage = (err, statusCode, res, next) => {
   if (process.env.DEV_ENV === 'Development') {
     const response = {
@@ -31,6 +32,7 @@ const getUser = async (req, res, next) => {
         email: user.email,
         mobileNumber: user.mobileNumber,
         Id: user._id,
+        Image: user.Image,
       },
     };
 
@@ -40,7 +42,49 @@ const getUser = async (req, res, next) => {
   }
 };
 
-const updateMe = async (req, res, next) => {};
+const updateMe = async (req, res, next) => {
+  try {
+    // console.log(req);
+    const { name, mobileNumber } = req.body;
+    const Image = req.file;
+    // console.log(name, mobileNumber, Image);
+
+    let downloadUrl;
+    if (Image) {
+      Image.buffer = await GeneralFn.resizeUserPhoto(Image.buffer);
+      downloadUrl = await FireBaseController.uploadImageTofirebase(Image, next);
+    }
+
+    if (!name && !mobileNumber && !Image) {
+      return next(new AppError('please enter atleast one parameter', 400));
+    }
+
+    const data = await User.findOneAndUpdate(
+      { email: req.user.email },
+      {
+        name,
+        mobileNumber,
+        Image: downloadUrl,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    console.log(data);
+    const response = {
+      status: 'success',
+      data: {
+        data,
+      },
+    };
+
+    res.status(200).json(response);
+  } catch (err) {
+    errorMessage(err, 400, res, next);
+  }
+};
 module.exports = {
   getUser,
+  updateMe,
 };
