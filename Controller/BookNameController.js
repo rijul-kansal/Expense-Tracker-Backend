@@ -1,5 +1,5 @@
-const bookName = require('../Schema/BookNameSchema');
 const BookName = require('../Schema/BookNameSchema');
+const MoneyTrans = require('../Schema/MoneyTransSchema');
 const User = require('../Schema/UsersSchema');
 const AppError = require('../utils/AppError');
 
@@ -37,10 +37,11 @@ const updateBook = async (req, res, next) => {
   try {
     let name = req.body.name;
     let newUserId = req.body.newUserId;
-    if (!name && !newUserId) {
+    let removeUser = req.body.removeUser;
+    if (!name && !newUserId && !removeUser) {
       return next(
         new AppError(
-          'Atleast enter one parameter either name or newUserId',
+          'Atleast enter one parameter either name or newUserId or removeUser',
           403
         )
       );
@@ -68,20 +69,49 @@ const updateBook = async (req, res, next) => {
     name = name || bookDetails.name;
     const updatedLast = Date.now();
     let bookIds = bookDetails.userId;
-    if (newUserId) {
+    if (newUserId || removeUser) {
       if (email === bookDetails.originalOwner) {
-        if (bookIds.includes(newUserId)) {
-          return next(
-            new AppError(
-              `the person with this ${newUserId} is already included`,
-              403
-            )
-          );
-        }
+        if (newUserId) {
+          if (bookIds.includes(newUserId)) {
+            return next(
+              new AppError(
+                `the person with this ${newUserId} is already included`,
+                403
+              )
+            );
+          }
 
-        bookIds.push(newUserId);
+          bookIds.push(newUserId);
+        } else {
+          for (let i = 0; i < removeUser.length; i++) {
+            const ele = removeUser[i];
+            for (let j = 0; j < bookIds.length; j++) {
+              if (bookIds[j] === ele) {
+                bookIds.splice(j, 1);
+                break;
+              }
+            }
+          }
+          if (bookIds.length === 0) {
+            return next(
+              new AppError(
+                'You are trying to remove all the members so please directly delete book'
+              )
+            );
+          }
+
+          if (!bookIds.includes(bookDetails.originalOwner)) {
+            return next(
+              new AppError(
+                'You are trying to remove yourself insterd of this please directly delete book'
+              )
+            );
+          }
+        }
       } else {
-        return next(new AppError('Only owner of the book can add new members'));
+        return next(
+          new AppError('Only owner of the book can add or delete members')
+        );
       }
     }
     const data = await BookName.findByIdAndUpdate(
@@ -111,36 +141,14 @@ const deleteBook = async (req, res, next) => {
   try {
     const email = req.user.email;
     const bookId = req.params.id;
-
-    const removeUser = req.body.removeUser;
     const book = await BookName.findById(bookId);
     if (!book) {
       return next(new AppError('Book with this id does not exists', 401));
     }
 
     if (book.originalOwner === email) {
-      if (!removeUser) {
-        await BookName.findByIdAndDelete(bookId);
-      } else {
-        let bookUser = book.userId;
-
-        for (let i = 0; i < removeUser.length; i++) {
-          const ele = removeUser[i];
-          for (let j = 0; j < bookUser.length; j++) {
-            if (bookUser[j] === ele) {
-              bookUser.splice(j, 1);
-              break;
-            }
-          }
-        }
-
-        if (bookUser.length === 0) {
-          await BookName.findByIdAndDelete(bookId);
-        } else {
-          book.userId = bookUser;
-          await book.save();
-        }
-      }
+      await MoneyTrans.deleteMany({ bookId });
+      await BookName.findByIdAndDelete(bookId);
     } else {
       return next(
         new AppError('Only owner of the book can delete this book', 404)
