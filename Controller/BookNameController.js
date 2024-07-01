@@ -35,8 +35,8 @@ const createBook = async (req, res, next) => {
 };
 const updateBook = async (req, res, next) => {
   try {
-    const name = req.body.name;
-    const newUserId = req.body.newUserId;
+    let name = req.body.name;
+    let newUserId = req.body.newUserId;
     if (!name && !newUserId) {
       return next(
         new AppError(
@@ -65,13 +65,12 @@ const updateBook = async (req, res, next) => {
       }
     }
 
-    bookDetails.name = name || bookDetails.name;
-    bookDetails.updatedLast = Date.now();
+    name = name || bookDetails.name;
+    const updatedLast = Date.now();
+    let bookIds = bookDetails.userId;
     if (newUserId) {
       if (email === bookDetails.originalOwner) {
-        const bookId = bookDetails.userId;
-
-        if (bookId.includes(newUserId)) {
+        if (bookIds.includes(newUserId)) {
           return next(
             new AppError(
               `the person with this ${newUserId} is already included`,
@@ -80,16 +79,28 @@ const updateBook = async (req, res, next) => {
           );
         }
 
-        bookId.push(newUserId);
-        bookDetails.userId = bookId;
+        bookIds.push(newUserId);
       } else {
         return next(new AppError('Only owner of the book can add new members'));
       }
     }
-    await bookDetails.save();
+    const data = await BookName.findByIdAndUpdate(
+      { _id: bookId },
+      {
+        name,
+        userId: bookIds,
+        updatedLast,
+      },
+      {
+        runValidators: true,
+        new: true,
+      }
+    );
     const response = {
       status: 'success',
-      message: 'successfully updated',
+      data: {
+        data,
+      },
     };
     res.status(200).json(response);
   } catch (err) {
