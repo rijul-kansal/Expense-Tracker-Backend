@@ -17,7 +17,7 @@ app.use('/api/v1/bookname', bookNameRouter);
 app.use('/api/v1/moneyTrans', moneyTransRouter);
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 10,
+  limit: 100,
 });
 app.use(limiter);
 app.use('/api/v1/Users', UserRouter);
