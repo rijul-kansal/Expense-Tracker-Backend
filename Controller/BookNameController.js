@@ -55,8 +55,9 @@ const updateBook = async (req, res, next) => {
         new AppError('No book exists with the id please check id again', 403)
       );
     }
+    let user;
     if (newUserId) {
-      const user = await User.findOne({ email: newUserId });
+      user = await User.findOne({ email: newUserId });
       if (!user) {
         return next(
           new AppError(
@@ -76,6 +77,14 @@ const updateBook = async (req, res, next) => {
             return next(
               new AppError(
                 `the person with this ${newUserId} is already included`,
+                403
+              )
+            );
+          }
+          if (!user.emailVerified) {
+            return next(
+              new AppError(
+                `the person with this ${newUserId} is not verified`,
                 403
               )
             );
