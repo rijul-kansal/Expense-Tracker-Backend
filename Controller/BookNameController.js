@@ -154,7 +154,7 @@ const deleteBook = async (req, res, next) => {
         new AppError('Only owner of the book can delete this book', 404)
       );
     }
-    res.status(204).json({
+    res.status(200).json({
       status: 'success',
       message: 'successfully deleted',
     });
