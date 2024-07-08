@@ -3,3 +3,5 @@ web socket
 analysis based on category
 filter based on category
 security system
+user manual (roles) in front end
+ biometric 

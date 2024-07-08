@@ -149,7 +149,7 @@ const filterMoneyTransForParticularBook = async (req, res, next) => {
       return next(new AppError(' You are not part of this book anymore', 404));
     }
 
-    const { date, type, members } = req.query;
+    const { date, type, members, category } = req.query;
     let moneyType = [];
     let dates = [];
     if (!date) {
@@ -178,25 +178,14 @@ const filterMoneyTransForParticularBook = async (req, res, next) => {
     }
 
     console.log(moneyType, dates);
-
+    const condition = [
+      { bookId: bookId },
+      { addedAt: { $gte: dates[0] } },
+      { addedAt: { $lte: dates[1] } },
+      { moneyType: { $in: moneyType } },
+    ];
     let data;
-    if (!members) {
-      data = await MoneyTrans.aggregate([
-        {
-          $match: {
-            $and: [
-              { bookId: bookId },
-              { addedAt: { $gte: dates[0] } },
-              { addedAt: { $lte: dates[1] } },
-              { moneyType: { $in: moneyType } },
-            ],
-          },
-        },
-        {
-          $sort: { addedAt: -1 },
-        },
-      ]);
-    } else {
+    if (members) {
       const member = members.split(',');
 
       for (let i = 0; i < member.length; i++) {
@@ -210,24 +199,22 @@ const filterMoneyTransForParticularBook = async (req, res, next) => {
           );
         }
       }
-      data = await MoneyTrans.aggregate([
-        {
-          $match: {
-            $and: [
-              { bookId: bookId },
-              { addedAt: { $gte: dates[0] } },
-              { addedAt: { $lte: dates[1] } },
-              { moneyType: { $in: moneyType } },
-              { addedBy: { $in: member } },
-            ],
-          },
-        },
-        {
-          $sort: { addedAt: -1 },
-        },
-      ]);
+      condition.push({ addedBy: { $in: member } });
     }
-
+    if (category) {
+      const cat = category.split(',');
+      condition.push({ category: { $in: cat } });
+    }
+    data = await MoneyTrans.aggregate([
+      {
+        $match: {
+          $and: condition,
+        },
+      },
+      {
+        $sort: { addedAt: -1 },
+      },
+    ]);
     const responce = {
       status: 'success',
       length: data.length,
