@@ -298,6 +298,52 @@ const downloadTrans = async (req, res, next) => {
     errorMessage(err, 400, res, next);
   }
 };
+
+const transBasedOnCategory = async (req, res, next) => {
+  try {
+    const bookId = req.params.id;
+    const data = await MoneyTrans.aggregate([
+      {
+        $match: {
+          bookId,
+        },
+      },
+      {
+        $group: {
+          _id: '$category',
+          amountIn: {
+            $sum: {
+              $cond: {
+                if: { $eq: ['$moneyType', 'In'] },
+                then: '$amount',
+                else: 0,
+              },
+            },
+          },
+          amountOut: {
+            $sum: {
+              $cond: {
+                if: { $eq: ['$moneyType', 'Out'] },
+                then: '$amount',
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+    ]);
+    const response = {
+      status: 'success',
+      data: {
+        data,
+      },
+    };
+
+    res.status(200).json(response);
+  } catch (err) {
+    generalFn.errorMessage(err, 400, res, next);
+  }
+};
 module.exports = {
   addTrans,
   deleteTransById,
@@ -305,4 +351,5 @@ module.exports = {
   filterMoneyTransForParticularBook,
   updateTrans,
   downloadTrans,
+  transBasedOnCategory,
 };

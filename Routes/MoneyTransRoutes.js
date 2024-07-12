@@ -15,5 +15,5 @@ router
 router
   .route('/filter/:id')
   .get(moneyTransController.filterMoneyTransForParticularBook);
-
+router.route('/basedOnCat/:id').get(moneyTransController.transBasedOnCategory);
 module.exports = router;
