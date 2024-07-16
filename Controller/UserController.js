@@ -47,7 +47,7 @@ const updateMe = async (req, res, next) => {
     // console.log(req);
     const { name, mobileNumber } = req.body;
     const Image = req.file;
-    // console.log(name, mobileNumber, Image);
+    console.log(name, mobileNumber, Image);
 
     let downloadUrl;
     if (Image) {
@@ -58,7 +58,7 @@ const updateMe = async (req, res, next) => {
     if (!name && !mobileNumber && !Image) {
       return next(new AppError('please enter atleast one parameter', 400));
     }
-
+    // console.log(downloadUrl);
     const data = await User.findOneAndUpdate(
       { email: req.user.email },
       {

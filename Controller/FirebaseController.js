@@ -1,12 +1,15 @@
 const { initializeApp } = require('firebase/app');
+
 const {
   getStorage,
   ref,
   getDownloadURL,
   uploadBytesResumable,
 } = require('firebase/storage');
+
 const multer = require('multer');
 const AppError = require('../utils/AppError');
+
 const firebase = {
   apiKey: process.env.API_KEY,
   authDomain: process.env.FB_AUTH_DOMAIN,

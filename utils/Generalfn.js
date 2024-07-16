@@ -56,6 +56,7 @@ function generateXLS(data) {
     row.values = [
       'Amount',
       'Description',
+      'Category',
       'MoneyType',
       'Owner',
       'Time',
@@ -65,7 +66,7 @@ function generateXLS(data) {
     ];
     row.font = { bold: true };
 
-    const columnWidths = [10, 20, 20, 20, 30, 20, 20, 20];
+    const columnWidths = [10, 20, 20, 20, 30, 20, 20, 20, 20];
 
     row.eachCell((cell, colNumber) => {
       const columnIndex = colNumber - 1;
@@ -80,16 +81,17 @@ function generateXLS(data) {
       const row = worksheet.getRow(rowIndex + index + 1);
       row.getCell('A').value = task.amount;
       row.getCell('B').value = task.description;
-      row.getCell('C').value = task.moneyType;
-      row.getCell('D').value = task.addedBy;
-      row.getCell('E').value = convertToIST(task.addedAt);
-      row.getCell('F').value = inn;
-      row.getCell('G').value = outt;
-      row.getCell('H').value = inn - outt;
+      row.getCell('C').value = task.category;
+      row.getCell('D').value = task.moneyType;
+      row.getCell('E').value = task.addedBy;
+      row.getCell('F').value = convertToIST(task.addedAt);
+      row.getCell('G').value = inn;
+      row.getCell('H').value = outt;
+      row.getCell('I').value = inn - outt;
 
       row.getCell('B').alignment = { wrapText: true };
 
-      const moneyTypeCell = row.getCell(3);
+      const moneyTypeCell = row.getCell(4);
       if (task.moneyType === 'In') {
         moneyTypeCell.fill = {
           type: 'pattern',

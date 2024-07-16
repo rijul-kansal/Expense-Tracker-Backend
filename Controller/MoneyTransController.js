@@ -153,7 +153,7 @@ const filterMoneyTransForParticularBook = async (req, res, next) => {
     let moneyType = [];
     let dates = [];
     if (!date) {
-      dates.push(1716396845000);
+      dates.push(1672593860000);
       dates.push(parseInt(Date.now()));
     } else {
       const datee = date.split(',');
