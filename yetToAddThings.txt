@@ -1,4 +1,3 @@
-push notification 
 web socket
 security system
 user manual (roles) in front end

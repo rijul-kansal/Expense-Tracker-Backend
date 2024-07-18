@@ -48,7 +48,6 @@ const Schema = new mongoose.Schema({
   PASSWORD_CHANGED_DATE: Number,
   FCM: {
     type: String,
-    select: false,
   },
 });
 

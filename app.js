@@ -6,7 +6,7 @@ process.on('uncaughtException', (err) => {
   console.error(err.name, err.message, err.stack);
   process.exit(1);
 });
-
+const User = require('./Schema/UsersSchema');
 const express = require('express');
 const morgan = require('morgan');
 const { rateLimit } = require('express-rate-limit');
@@ -16,7 +16,6 @@ const UserRouter = require('./Routes/UserRoutes');
 const ErrorMiddleware = require('./utils/ErrorMiddleware');
 const AppError = require('./utils/AppError');
 const functions = require('firebase-functions');
-
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -40,6 +39,14 @@ app.use(ErrorMiddleware);
 const mongoose = require('mongoose');
 const DB = process.env.DATABASE_URL.replace('<password>', process.env.PASSWORD);
 
+var cron = require('node-cron');
+
+cron.schedule('* * * * *', async () => {
+  const tokens = await User.find().select('name');
+  console.log(tokens);
+  console.log('hi');
+});
+
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -53,7 +60,6 @@ mongoose
   .catch((err) => {
     console.error(err);
   });
-
 // for firebase commet this
 // const PORT = process.env.PORT || 8000;
 // const server = app.listen(PORT, () => {

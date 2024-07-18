@@ -1,7 +1,5 @@
 const AppError = require('../utils/AppError');
-const GeneralFn = require('./../utils/Generalfn');
 const User = require('./../Schema/UsersSchema');
-const FireBaseController = require('./FirebaseController');
 const errorMessage = (err, statusCode, res, next) => {
   if (process.env.DEV_ENV === 'Development') {
     const response = {
@@ -44,27 +42,17 @@ const getUser = async (req, res, next) => {
 
 const updateMe = async (req, res, next) => {
   try {
-    // console.log(req);
-    const { name, mobileNumber } = req.body;
-    const Image = req.file;
-    console.log(name, mobileNumber, Image);
-
-    let downloadUrl;
-    if (Image) {
-      Image.buffer = await GeneralFn.resizeUserPhoto(Image.buffer);
-      downloadUrl = await FireBaseController.uploadImageTofirebase(Image, next);
-    }
-
-    if (!name && !mobileNumber && !Image) {
+    const { name, mobileNumber, fcmToken, imageUrl } = req.body;
+    if (!name && !mobileNumber && !fcmToken && imageUrl) {
       return next(new AppError('please enter atleast one parameter', 400));
     }
-    // console.log(downloadUrl);
     const data = await User.findOneAndUpdate(
       { email: req.user.email },
       {
         name,
         mobileNumber,
-        Image: downloadUrl,
+        FCM: fcmToken,
+        Image: imageUrl,
       },
       {
         new: true,
