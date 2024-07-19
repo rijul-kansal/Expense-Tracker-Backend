@@ -16,6 +16,7 @@ const UserRouter = require('./Routes/UserRoutes');
 const ErrorMiddleware = require('./utils/ErrorMiddleware');
 const AppError = require('./utils/AppError');
 const functions = require('firebase-functions');
+const FireBaseController = require('./Controller/FirebaseController');
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -41,9 +42,18 @@ const DB = process.env.DATABASE_URL.replace('<password>', process.env.PASSWORD);
 
 var cron = require('node-cron');
 
-cron.schedule('* * * * *', async () => {
-  const tokens = await User.find().select('name');
-  console.log(tokens);
+// every 6 hours
+cron.schedule('0 */6 * * *', async () => {
+  const tokens = await User.find().select('FCM');
+  // console.log(tokens);
+  let tok = tokens.map((el) => el.FCM);
+  // console.log(tok);
+  FireBaseController.sendingNotificationTomultipleDevice(
+    tok,
+    "Keep track of your spending. Don't forget to add your recent expenses to your expense book.",
+    'Time to Log Your Expenses!',
+    'https://firebasestorage.googleapis.com/v0/b/all-backend-fd5c7.appspot.com/o/UserImages%2Fdepositphotos_30214197-stock-illustration-dollar-cartoon.jpg?alt=media&token=e01becd7-5636-4a6f-bacb-58558592df4b'
+  );
   console.log('hi');
 });
 

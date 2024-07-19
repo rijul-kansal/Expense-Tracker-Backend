@@ -43,7 +43,7 @@ const getUser = async (req, res, next) => {
 const updateMe = async (req, res, next) => {
   try {
     const { name, mobileNumber, fcmToken, imageUrl } = req.body;
-    if (!name && !mobileNumber && !fcmToken && imageUrl) {
+    if (!name && !mobileNumber && !fcmToken && !imageUrl) {
       return next(new AppError('please enter atleast one parameter', 400));
     }
     const data = await User.findOneAndUpdate(

@@ -75,6 +75,7 @@ const sendPushNotification = async (token, body, title, image) => {
 const sendPushNotification1 = async (req, res, next) => {
   const { title, body, image } = req.body;
   const token = req.user.FCM;
+  console.log('rk', token);
   const message = {
     token,
     notification: {
@@ -114,20 +115,43 @@ const sendPushNotification1 = async (req, res, next) => {
     errorMessage(error, 400, res, next);
   }
 };
-const sendingNotificationTomultipleDevice = async (token, body, title) => {
+const sendingNotificationTomultipleDevice = async (
+  token,
+  body,
+  title,
+  image
+) => {
   const message = {
-    data: {
+    tokens: token,
+    notification: {
       title,
       body,
     },
-    tokens: token,
+    android: {
+      notification: {
+        imageUrl: image,
+      },
+    },
+    apns: {
+      payload: {
+        aps: {
+          'mutable-content': 1,
+        },
+      },
+      fcm_options: {
+        image,
+      },
+    },
+    webpush: {
+      headers: {
+        image,
+      },
+    },
   };
   admin
     .messaging()
     .sendMulticast(message)
-    .then((response) => {
-      console.log('Multicast notification sent:', response);
-    })
+    .then((response) => {})
     .catch((error) => {
       console.error('Error sending multicast notification:', error);
     });
