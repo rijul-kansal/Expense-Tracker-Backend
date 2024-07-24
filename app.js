@@ -13,6 +13,7 @@ const { rateLimit } = require('express-rate-limit');
 const bookNameRouter = require('./Routes/BooknameRoutes');
 const moneyTransRouter = require('./Routes/MoneyTransRoutes');
 const UserRouter = require('./Routes/UserRoutes');
+const paymentRouter = require('./Routes/PaymentRoute');
 const ErrorMiddleware = require('./utils/ErrorMiddleware');
 const AppError = require('./utils/AppError');
 const functions = require('firebase-functions');
@@ -28,6 +29,7 @@ app.use(morgan('dev'));
 
 app.use('/api/v1/bookname', bookNameRouter);
 app.use('/api/v1/moneyTrans', moneyTransRouter);
+app.use('/api/v1/payment', paymentRouter);
 
 app.use('/api/v1/Users', UserRouter);
 
@@ -43,7 +45,7 @@ const DB = process.env.DATABASE_URL.replace('<password>', process.env.PASSWORD);
 var cron = require('node-cron');
 
 // every 6 hours
-cron.schedule('0 */6 * * *', async () => {
+cron.schedule('0 * * * *', async () => {
   const tokens = await User.find().select('FCM');
   // console.log(tokens);
   let tok = tokens.map((el) => el.FCM);
@@ -71,10 +73,10 @@ mongoose
     console.error(err);
   });
 // for firebase commet this
-// const PORT = process.env.PORT || 8000;
-// const server = app.listen(PORT, () => {
-//   console.log(`Listening to server on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 8000;
+const server = app.listen(PORT, () => {
+  console.log(`Listening to server on port ${PORT}`);
+});
 process.on('unhandledRejection', (err) => {
   console.error('UNHANDLED REJECTION! 💥 Shutting down...');
   console.error(err.name, err.message);
