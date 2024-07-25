@@ -175,7 +175,6 @@ const getBookOfParticularUser = async (req, res, next) => {
   try {
     const userIdd = req.user.email;
     const d = await BookName.find({ userId: { $in: [userIdd] } });
-    console.log(d);
     if (d.length === 0) {
       return next(new AppError('a user has not created any book', 401));
     }

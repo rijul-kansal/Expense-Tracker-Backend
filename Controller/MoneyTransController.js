@@ -176,8 +176,6 @@ const filterMoneyTransForParticularBook = async (req, res, next) => {
       const typee = type.split(',');
       typee.map((el) => moneyType.push(el));
     }
-
-    console.log(moneyType, dates);
     const condition = [
       { bookId: bookId },
       { addedAt: { $gte: dates[0] } },

@@ -75,7 +75,6 @@ const sendPushNotification = async (token, body, title, image) => {
 const sendPushNotification1 = async (req, res, next) => {
   const { title, body, image } = req.body;
   const token = req.user.FCM;
-  console.log('rk', token);
   const message = {
     token,
     notification: {

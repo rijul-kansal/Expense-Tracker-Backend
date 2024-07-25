@@ -73,10 +73,10 @@ mongoose
     console.error(err);
   });
 // for firebase commet this
-const PORT = process.env.PORT || 8000;
-const server = app.listen(PORT, () => {
-  console.log(`Listening to server on port ${PORT}`);
-});
+// const PORT = process.env.PORT || 8000;
+// const server = app.listen(PORT, () => {
+//   console.log(`Listening to server on port ${PORT}`);
+// });
 process.on('unhandledRejection', (err) => {
   console.error('UNHANDLED REJECTION! 💥 Shutting down...');
   console.error(err.name, err.message);

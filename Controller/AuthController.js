@@ -27,7 +27,6 @@ async function generate6digitOtp() {
 }
 const verifyPassword = async (notHashedPass, hashedPass) => {
   const response = await promisify(bcrypt.compare)(notHashedPass, hashedPass);
-  console.log(response);
   return response;
 };
 const signUp = async (req, res, next) => {
@@ -81,7 +80,6 @@ const signUp = async (req, res, next) => {
 const verifyEmail = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
-    console.log(email, otp);
     if (!email || !otp) {
       return next(new AppError('Please enter email or otp', 401));
     }
@@ -140,7 +138,6 @@ const login = async (req, res, next) => {
     }
 
     const user = await Users.find({ email }).select('+password');
-    console.log(user);
     if (
       user.length === 0 ||
       !(await verifyPassword(password, user[0].password))
@@ -257,7 +254,6 @@ const updatePassword = async (req, res, next) => {
     await user.save();
     user.password = undefined;
     user.PASSWORD_CHANGED_DATE = undefined;
-    console.log(user);
     const response = {
       status: 'success',
       data: {

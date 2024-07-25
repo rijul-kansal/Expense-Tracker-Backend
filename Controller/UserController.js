@@ -22,7 +22,6 @@ const getUser = async (req, res, next) => {
     if (!user) {
       return next(new AppError('No user exists for this token', 401));
     }
-    console.log(user);
     const response = {
       status: 'success',
       data: {
@@ -59,7 +58,6 @@ const updateMe = async (req, res, next) => {
         runValidators: true,
       }
     );
-    console.log(data);
     const response = {
       status: 'success',
       data: {

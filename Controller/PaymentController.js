@@ -72,7 +72,6 @@ const addDataToDb = async (req, res, next) => {
         const amt =
           verify.transaction_details[`${transId}`].amt.split('.')[0] * 1;
         const date = transId.split('-')[1] * 1;
-        console.log(amt, date);
         await Payment.create({
           amount: amt,
           date: date,
@@ -101,9 +100,9 @@ const history = async (req, res, next) => {
   try {
     const email = req.user.email;
 
-    const history = await Payment.find({ userEmail: email }).select(
-      'amount date validTill'
-    );
+    const history = await Payment.find({ userEmail: email })
+      .select('amount date validTill')
+      .sort('-date');
     const response = {
       status: 'success',
       data: {
